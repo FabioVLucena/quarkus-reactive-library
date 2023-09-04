@@ -13,8 +13,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import lombok.Builder;
-
 
 @Builder
 @Entity(name = "author")
@@ -27,6 +27,9 @@ public class Author extends PanacheEntityBase {
 	
 	@Column(name = "name", nullable = false, unique = false)
 	private String name;
+	
+	@OneToMany
+	private List<Book> bookList;
 
 	public static Uni<Author> findAuthorById(Long id) {
 		return findById(id);
@@ -40,8 +43,8 @@ public class Author extends PanacheEntityBase {
 						.fail()
 				.onFailure()
 					.recoverWithUni(failure -> {
-						List<PanacheEntityBase> authorList = new ArrayList<PanacheEntityBase>(); 
-						return Uni.createFrom().item(authorList);
+						List<PanacheEntityBase> list = new ArrayList<PanacheEntityBase>(); 
+						return Uni.createFrom().item(list);
 					});
 	}
 	
@@ -69,7 +72,7 @@ public class Author extends PanacheEntityBase {
 							.recoverWithNull();
 	}
 	
-	public static Uni<Boolean> deleteAuthor(Long id) {
+	public static Uni<Boolean> deleteAuthorById(Long id) {
 		return Panache.withTransaction(() -> deleteById(id));
 	}
 	
