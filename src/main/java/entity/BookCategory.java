@@ -7,10 +7,15 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity(name = "book_category")
 public class BookCategory {
 
@@ -20,9 +25,11 @@ public class BookCategory {
 	private Long id;
 	
 	@ManyToOne
+	@JoinColumn(name = "book_id", referencedColumnName = "id", nullable = false)
 	private Book book;
 
 	@ManyToOne
+	@JoinColumn(name = "category_id", referencedColumnName = "id", nullable = false)
 	private Category category;
 	
 	@Column(name = "register_date", nullable = false, unique = false)

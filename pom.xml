@@ -52,6 +52,14 @@
       <artifactId>quarkus-junit5</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+    	<groupId>io.quarkus</groupId>
+    	<artifactId>quarkus-reactive-pg-client</artifactId>
+	</dependency>
+	<dependency>
+    	<groupId>io.quarkus</groupId>
+	    <artifactId>quarkus-resteasy-reactive-jackson</artifactId>
+	</dependency>
   </dependencies>
   <build>
     <plugins>

@@ -13,10 +13,13 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity(name = "book")
 public class Book extends PanacheEntityBase {
 
@@ -40,18 +43,6 @@ public class Book extends PanacheEntityBase {
 	@Column(name = "available_quantity", nullable = true, unique = false)
 	private Integer availableQuantity;
 
-	@Column(name = "publisher_id", nullable = true, unique = false)
-	private Publisher publisher; 
-
-	@OneToMany(mappedBy = "book_category")
-	private List<Category> categoryList;
-	
-	@OneToMany(mappedBy = "book_author")
-	private List<Author> authorList;
-
-	@OneToMany(mappedBy = "book_publisher")
-	private List<Publisher> publisherList;
-	
 	public static Uni<Book> findBookById(Long id) {
 		return findById(id);
 	}
@@ -84,23 +75,23 @@ public class Book extends PanacheEntityBase {
 					.transform(t -> new IllegalStateException(t));
 	}
 
-	public static Uni<Book> updateBook(Long id, Book book) {
-		return Panache
-				.withTransaction(() -> findBookById(id)
-						.onItem()
-							.ifNotNull()
-								.transform(entity -> {
-									entity.title = book.title;
-									entity.subtitle = book.subtitle;
-									entity.sinopse = book.sinopse;
-									entity.quantity = book.quantity;
-									entity.availableQuantity = book.availableQuantity;
-									entity.publisher = book.publisher;
-									return entity;
-								}))
-						.onFailure()
-							.recoverWithNull();
-	}
+//	public static Uni<Book> updateBook(Long id, Book book) {
+//		return Panache
+//				.withTransaction(() -> findBookById(id)
+//						.onItem()
+//							.ifNotNull()
+//								.transform(entity -> {
+//									entity.title = book.title;
+//									entity.subtitle = book.subtitle;
+//									entity.sinopse = book.sinopse;
+//									entity.quantity = book.quantity;
+//									entity.availableQuantity = book.availableQuantity;
+//									entity.publisher = book.publisher;
+//									return entity;
+//								}))
+//						.onFailure()
+//							.recoverWithNull();
+//	}
 
 	public static Uni<Boolean> deleteBookById(Long id) {
 		return Panache.withTransaction(() -> deleteById(id));

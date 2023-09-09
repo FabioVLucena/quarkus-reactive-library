@@ -13,10 +13,13 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity(name = "author")
 public class Author extends PanacheEntityBase {
 
@@ -28,9 +31,6 @@ public class Author extends PanacheEntityBase {
 	@Column(name = "name", nullable = false, unique = false)
 	private String name;
 	
-	@OneToMany
-	private List<Book> bookList;
-
 	public static Uni<Author> findAuthorById(Long id) {
 		return findById(id);
 	}
