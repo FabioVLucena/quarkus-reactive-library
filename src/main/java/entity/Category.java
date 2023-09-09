@@ -3,6 +3,7 @@ package entity;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import io.quarkus.hibernate.reactive.panache.Panache;
 import io.quarkus.hibernate.reactive.panache.PanacheEntityBase;
@@ -35,15 +36,18 @@ public class Category extends PanacheEntityBase {
 		return findById(id);
 	}
 	
-	public static Uni<List<PanacheEntityBase>> getAllCategorys() {
+	public static Uni<List<Category>> getAllCategorys() {
 		return Category
 				.listAll(Sort.by("description"))
+				.onItem().transform(entities -> entities.stream()
+                        .map(entity -> (Category) entity)
+                        	.collect(Collectors.toList()))
 				.ifNoItem()
 					.after(Duration.ofMillis(10000))
 						.fail()
 				.onFailure()
 					.recoverWithUni(failure -> {
-						List<PanacheEntityBase> list = new ArrayList<PanacheEntityBase>(); 
+						List<Category> list = new ArrayList<Category>(); 
 						return Uni.createFrom().item(list);
 					});
 	}

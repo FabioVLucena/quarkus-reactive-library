@@ -3,6 +3,7 @@ package entity;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import io.quarkus.hibernate.reactive.panache.Panache;
 import io.quarkus.hibernate.reactive.panache.PanacheEntityBase;
@@ -35,15 +36,18 @@ public class Publisher extends PanacheEntityBase {
 		return findById(id);
 	}
 	
-	public static Uni<List<PanacheEntityBase>> getAllPublishers() {
+	public static Uni<List<Publisher>> getAllPublishers() {
 		return Publisher
 				.listAll(Sort.by("name"))
+				.onItem().transform(entities -> entities.stream()
+                        .map(entity -> (Publisher) entity)
+                        	.collect(Collectors.toList()))
 				.ifNoItem()
 					.after(Duration.ofMillis(10000))
 						.fail()
 				.onFailure()
 					.recoverWithUni(failure -> {
-						List<PanacheEntityBase> list = new ArrayList<PanacheEntityBase>(); 
+						List<Publisher> list = new ArrayList<Publisher>(); 
 						return Uni.createFrom().item(list);
 					});
 	}
