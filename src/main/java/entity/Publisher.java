@@ -75,5 +75,4 @@ public class Publisher extends PanacheEntityBase {
 	public static Uni<Boolean> deletePublisherById(Long id) {
 		return Panache.withTransaction(() -> deleteById(id));
 	}
-	
 }

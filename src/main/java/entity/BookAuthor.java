@@ -1,7 +1,11 @@
 package entity;
 
+import java.time.Duration;
 import java.util.Date;
 
+import io.quarkus.hibernate.reactive.panache.Panache;
+import io.quarkus.hibernate.reactive.panache.PanacheEntityBase;
+import io.smallrye.mutiny.Uni;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -17,7 +21,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity(name = "book_author")
-public class BookAuthor {
+public class BookAuthor extends PanacheEntityBase {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,4 +42,18 @@ public class BookAuthor {
 	@Column(name = "delete_date", nullable = true, unique = false)
 	private Date deleteDate;
 	
+	public static Uni<BookAuthor> addBookAuthor(BookAuthor bookAuthor) {
+		return Panache
+				.withTransaction(bookAuthor::persist)
+					.replaceWith(bookAuthor)
+				.ifNoItem()
+					.after(Duration.ofMillis(10000))
+						.fail()
+				.onFailure()
+					.transform(t -> new IllegalStateException(t));
+	}
+	
+	public static Uni<Boolean> deleteBookAuthorById(Long id) {
+		return Panache.withTransaction(() -> deleteById(id));
+	}
 }

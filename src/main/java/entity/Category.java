@@ -75,5 +75,4 @@ public class Category extends PanacheEntityBase {
 	public static Uni<Boolean> deleteCategoryById(Long id) {
 		return Panache.withTransaction(() -> deleteById(id));
 	}
-	
 }

@@ -47,10 +47,6 @@ public class Book extends PanacheEntityBase {
 		return findById(id);
 	}
 	
-	public static Uni<Book> findAllBooksByAuthorId(Long authorId) {
-		return null;
-	}
-	
 	public static Uni<List<PanacheEntityBase>> getAllBooks() {
 		return Book
 				.listAll(Sort.by("title"))
@@ -75,23 +71,22 @@ public class Book extends PanacheEntityBase {
 					.transform(t -> new IllegalStateException(t));
 	}
 
-//	public static Uni<Book> updateBook(Long id, Book book) {
-//		return Panache
-//				.withTransaction(() -> findBookById(id)
-//						.onItem()
-//							.ifNotNull()
-//								.transform(entity -> {
-//									entity.title = book.title;
-//									entity.subtitle = book.subtitle;
-//									entity.sinopse = book.sinopse;
-//									entity.quantity = book.quantity;
-//									entity.availableQuantity = book.availableQuantity;
-//									entity.publisher = book.publisher;
-//									return entity;
-//								}))
-//						.onFailure()
-//							.recoverWithNull();
-//	}
+	public static Uni<Book> updateBook(Long id, Book book) {
+		return Panache
+				.withTransaction(() -> findBookById(id)
+						.onItem()
+							.ifNotNull()
+								.transform(entity -> {
+									entity.title = book.title;
+									entity.subtitle = book.subtitle;
+									entity.sinopse = book.sinopse;
+									entity.quantity = book.quantity;
+									entity.availableQuantity = book.availableQuantity;
+									return entity;
+								}))
+						.onFailure()
+							.recoverWithNull();
+	}
 
 	public static Uni<Boolean> deleteBookById(Long id) {
 		return Panache.withTransaction(() -> deleteById(id));
