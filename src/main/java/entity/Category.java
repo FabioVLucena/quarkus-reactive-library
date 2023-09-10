@@ -15,12 +15,14 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-@Builder
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper=false)
 @Entity(name = "category")
 public class Category extends PanacheEntityBase {
 
@@ -36,7 +38,7 @@ public class Category extends PanacheEntityBase {
 		return findById(id);
 	}
 	
-	public static Uni<List<Category>> getAllCategorys() {
+	public static Uni<List<Category>> getAllCategories() {
 		return Category
 				.listAll(Sort.by("description"))
 				.onItem().transform(entities -> entities.stream()
