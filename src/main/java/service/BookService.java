@@ -1,11 +1,14 @@
 package service;
 
+import java.util.Date;
 import java.util.List;
 
 import entity.Book;
+import entity.BookCategory;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 
 @ApplicationScoped
@@ -47,5 +50,25 @@ public class BookService {
 	    if (book == null || book.getTitle() == null) {
             throw new WebApplicationException("Book title was not set on request.", Status.BAD_REQUEST);
         }		
+	}
+
+	public Uni<List<BookCategory>> getAllCategoriesByBookId(Long id) {
+		Uni<List<BookCategory>> bookCategoryList = BookCategory.getAllBookCategoryByBookId(id);
+		return bookCategoryList;
+	}
+	
+	public Uni<BookCategory> addCategory(Long bookId, Long categoryId) {
+		BookCategory bookCategory = new BookCategory();
+		bookCategory.getBook().setId(bookId);
+		bookCategory.getCategory().setId(categoryId);
+		bookCategory.setRegisterDate(new Date());
+		
+		Uni<BookCategory> bookCategoryUni = BookCategory.addBookCategory(bookCategory);
+		return bookCategoryUni;
+	}
+	
+	public Uni<Boolean> deleteCategory(Long id) {
+		Uni<Boolean> deleted = BookCategory.deleteBookCategoryById(id);
+		return deleted;
 	}
 }
