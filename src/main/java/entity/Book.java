@@ -15,12 +15,14 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-@Builder
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper=false)
 @Entity(name = "book")
 public class Book extends PanacheEntityBase {
 
@@ -46,6 +48,10 @@ public class Book extends PanacheEntityBase {
 
 	public static Uni<Book> findBookById(Long id) {
 		return findById(id);
+	}
+	
+	public static Uni<Book> findBookByTitle(String title) {
+		return Book.find("title", title).firstResult();
 	}
 	
 	public static Uni<List<Book>> getAllBooks() {
