@@ -1,7 +1,10 @@
 package entity;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import io.quarkus.hibernate.reactive.panache.Panache;
 import io.quarkus.hibernate.reactive.panache.PanacheEntityBase;
@@ -51,6 +54,38 @@ public class BookPublisher extends PanacheEntityBase {
 						.fail()
 				.onFailure()
 					.transform(t -> new IllegalStateException(t));
+	}
+	
+	public static Uni<List<BookPublisher>> getAllBookPublisherByBookId(Long bookId) {
+		return BookPublisher
+				.list("book_id", bookId)
+					.onItem().transform(entities -> entities.stream()
+                        .map(entity -> (BookPublisher) entity)
+                        	.collect(Collectors.toList()))
+				.ifNoItem()
+					.after(Duration.ofMillis(10000))
+						.fail()
+				.onFailure()
+					.recoverWithUni(failure -> {
+						List<BookPublisher> list = new ArrayList<BookPublisher>(); 
+						return Uni.createFrom().item(list);
+					});
+	}
+
+	public static Uni<List<BookPublisher>> getAllBookPublisherByAuthorId(Long publisherId) {
+		return BookPublisher
+				.list("publisher_id", publisherId)
+				.onItem().transform(entities -> entities.stream()
+                        .map(entity -> (BookPublisher) entity)
+                        	.collect(Collectors.toList()))
+				.ifNoItem()
+					.after(Duration.ofMillis(10000))
+						.fail()
+				.onFailure()
+					.recoverWithUni(failure -> {
+						List<BookPublisher> list = new ArrayList<BookPublisher>(); 
+						return Uni.createFrom().item(list);
+					});
 	}
 	
 	public static Uni<Boolean> deleteBookPublisherById(Long id) {
