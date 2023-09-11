@@ -3,7 +3,9 @@ package entity;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import io.quarkus.hibernate.reactive.panache.Panache;
@@ -16,6 +18,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.NamedQueries;
+import jakarta.persistence.NamedQuery;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -58,6 +62,24 @@ public class BookCategory extends PanacheEntityBase {
 					.transform(t -> new IllegalStateException(t));
 	}
 	
+	public static Uni<BookCategory> getBookCategoryByBookIdAndCategoryId(Long bookId, Long categoryId) {
+		Map<String, Object> params = new HashMap<>();
+		params.put("bookId", bookId);
+		params.put("categoryId", categoryId);
+		
+		return BookCategory.find("book_id = :bookId and category_id = :categoryId", params)
+				.firstResult()
+					.onItem()
+						.transform(entitie -> (BookCategory) entitie)
+					.ifNoItem()
+						.after(Duration.ofMillis(10000))
+							.fail()
+					.onFailure()
+						.recoverWithUni(failure -> {
+							return Uni.createFrom().item(new BookCategory());
+						});
+	}
+	
 	public static Uni<List<BookCategory>> getAllBookCategoryByBookId(Long bookId) {
 		return BookCategory
 				.list("book_id", bookId)
@@ -92,5 +114,17 @@ public class BookCategory extends PanacheEntityBase {
 	
 	public static Uni<Boolean> deleteBookCategoryById(Long id) {
 		return Panache.withTransaction(() -> deleteById(id));
+	}
+
+	public static Uni<Boolean> deleteBookCategoryByBookIdAndCategoryId(Long bookId, Long categoryId) {
+		Uni<Boolean> deleted = BookCategory.getBookCategoryByBookIdAndCategoryId(bookId, categoryId)
+				.onItem()
+					.ifNotNull()
+						.transformToUni(entity -> deleteBookCategoryById(entity.getId()))
+				.onItem()
+					.ifNull()
+						.continueWith(true);
+		
+		return deleted;
 	}
 }

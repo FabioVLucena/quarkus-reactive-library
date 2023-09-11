@@ -67,8 +67,8 @@ public class BookService {
 		return bookCategoryUni;
 	}
 	
-	public Uni<Boolean> deleteCategory(Long id) {
-		Uni<Boolean> deleted = BookCategory.deleteBookCategoryById(id);
+	public Uni<Boolean> deleteCategory(Long bookId, Long categoryId) {
+		Uni<Boolean> deleted = BookCategory.deleteBookCategoryByBookIdAndCategoryId(bookId, categoryId);
 		return deleted;
 	}
 }
