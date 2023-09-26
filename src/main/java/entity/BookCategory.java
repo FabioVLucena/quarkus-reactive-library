@@ -18,8 +18,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.NamedQueries;
-import jakarta.persistence.NamedQuery;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -67,7 +65,7 @@ public class BookCategory extends PanacheEntityBase {
 		params.put("bookId", bookId);
 		params.put("categoryId", categoryId);
 		
-		return BookCategory.find("book_id = :bookId and category_id = :categoryId", params)
+		return BookCategory.find("book.id = :bookId and category.id = :categoryId", params)
 				.firstResult()
 					.onItem()
 						.transform(entitie -> (BookCategory) entitie)
@@ -82,7 +80,7 @@ public class BookCategory extends PanacheEntityBase {
 	
 	public static Uni<List<BookCategory>> getAllBookCategoryByBookId(Long bookId) {
 		return BookCategory
-				.list("book_id", bookId)
+				.list("book.id", bookId)
 					.onItem().transform(entities -> entities.stream()
                         .map(entity -> (BookCategory) entity)
                         	.collect(Collectors.toList()))
@@ -96,9 +94,9 @@ public class BookCategory extends PanacheEntityBase {
 					});
 	}
 
-	public static Uni<List<BookCategory>> getAllBookCategoryByAuthorId(Long categoryId) {
+	public static Uni<List<BookCategory>> getAllBookCategoryByCategoryId(Long categoryId) {
 		return BookCategory
-				.list("category_id", categoryId)
+				.list("category.id", categoryId)
 				.onItem().transform(entities -> entities.stream()
                         .map(entity -> (BookCategory) entity)
                         	.collect(Collectors.toList()))
@@ -116,6 +114,10 @@ public class BookCategory extends PanacheEntityBase {
 		return Panache.withTransaction(() -> deleteById(id));
 	}
 
+	public static Uni<Boolean> deleteAllBookCategoryByBookId(Long bookId) {
+		return Uni.createFrom().item(true);
+	}
+	
 	public static Uni<Boolean> deleteBookCategoryByBookIdAndCategoryId(Long bookId, Long categoryId) {
 		Uni<Boolean> deleted = BookCategory.getBookCategoryByBookIdAndCategoryId(bookId, categoryId)
 				.onItem()

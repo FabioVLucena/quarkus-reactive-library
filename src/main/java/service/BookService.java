@@ -1,14 +1,18 @@
 package service;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import entity.Book;
 import entity.BookCategory;
+import entity.Category;
+import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.WebApplicationException;
-import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 
 @ApplicationScoped
@@ -41,6 +45,8 @@ public class BookService {
 	}
 
 	public Uni<Boolean> deleteBook(Long id) {
+		BookCategory.deleteAllBookCategoryByBookId(id);
+		
 		Uni<Boolean> deleted = Book.deleteBookById(id);
 		
 		return deleted;
@@ -52,15 +58,22 @@ public class BookService {
         }		
 	}
 
-	public Uni<List<BookCategory>> getAllCategoriesByBookId(Long id) {
-		Uni<List<BookCategory>> bookCategoryList = BookCategory.getAllBookCategoryByBookId(id);
-		return bookCategoryList;
+	public Uni<List<Category>> getAllCategoriesByBookId(Long id) {
+		Uni<List<BookCategory>> bookCategoryUniList = BookCategory.getAllBookCategoryByBookId(id);
+		
+		Uni<List<Category>> categoryUniList = bookCategoryUniList.onItem().transform(list -> {
+			return list.stream()
+					.map(BookCategory::getCategory)
+					.collect(Collectors.toList());
+		});
+		
+		return categoryUniList;
 	}
 	
 	public Uni<BookCategory> addCategory(Long bookId, Long categoryId) {
 		BookCategory bookCategory = new BookCategory();
-		bookCategory.getBook().setId(bookId);
-		bookCategory.getCategory().setId(categoryId);
+		bookCategory.setBook(new Book(bookId));
+		bookCategory.setCategory(new Category(categoryId));
 		bookCategory.setRegisterDate(new Date());
 		
 		Uni<BookCategory> bookCategoryUni = BookCategory.addBookCategory(bookCategory);

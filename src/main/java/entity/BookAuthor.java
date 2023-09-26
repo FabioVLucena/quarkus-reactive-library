@@ -60,7 +60,7 @@ public class BookAuthor extends PanacheEntityBase {
 	
 	public static Uni<List<BookAuthor>> getAllBookAuthorByBookId(Long bookId) {
 		return BookAuthor
-				.list("book_id", bookId)
+				.list("book.id", bookId)
 					.onItem().transform(entities -> entities.stream()
                         .map(entity -> (BookAuthor) entity)
                         	.collect(Collectors.toList()))
@@ -76,7 +76,7 @@ public class BookAuthor extends PanacheEntityBase {
 
 	public static Uni<List<BookAuthor>> getAllBookAuthorByAuthorId(Long authorId) {
 		return BookAuthor
-				.list("author_id", authorId)
+				.list("author.id", authorId)
 				.onItem().transform(entities -> entities.stream()
                         .map(entity -> (BookAuthor) entity)
                         	.collect(Collectors.toList()))

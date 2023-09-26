@@ -34,6 +34,10 @@ public class Category extends PanacheEntityBase {
 	@Column(name = "description", nullable = false, unique = false)
 	private String description;
 	
+	public Category(Long id) {
+		this.id = id;
+	}
+	
 	public static Uni<Category> findCategoryById(Long id) {
 		return findById(id);
 	}

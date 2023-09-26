@@ -46,6 +46,10 @@ public class Book extends PanacheEntityBase {
 	@Column(name = "available_quantity", nullable = true, unique = false)
 	private Integer availableQuantity;
 
+	public Book(Long id) {
+		this.id = id;
+	}
+	
 	public static Uni<Book> findBookById(Long id) {
 		return findById(id);
 	}
@@ -101,5 +105,5 @@ public class Book extends PanacheEntityBase {
 	public static Uni<Boolean> deleteBookById(Long id) {
 		return Panache.withTransaction(() -> deleteById(id));
 	}
-	
+
 }
