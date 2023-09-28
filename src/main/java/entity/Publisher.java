@@ -34,6 +34,10 @@ public class Publisher extends PanacheEntityBase {
 	@Column(name = "name", nullable = false, unique = false)
 	private String name;
 	
+	public Publisher(Long id) {
+		this.id = id;
+	}
+	
 	public static Uni<Publisher> findPublisherById(Long id) {
 		return findById(id);
 	}
@@ -81,4 +85,5 @@ public class Publisher extends PanacheEntityBase {
 	public static Uni<Boolean> deletePublisherById(Long id) {
 		return Panache.withTransaction(() -> deleteById(id));
 	}
+
 }

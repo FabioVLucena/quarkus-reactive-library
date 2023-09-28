@@ -3,7 +3,9 @@ package entity;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import io.quarkus.hibernate.reactive.panache.Panache;
@@ -92,5 +94,35 @@ public class BookAuthor extends PanacheEntityBase {
 	
 	public static Uni<Boolean> deleteBookAuthorById(Long id) {
 		return Panache.withTransaction(() -> deleteById(id));
+	}
+	
+	public static Uni<BookCategory> getBookAuthorByBookIdAndAuthorId(Long bookId, Long authorId) {
+		Map<String, Object> params = new HashMap<>();
+		params.put("bookId", bookId);
+		params.put("authorId", authorId);
+		
+		return BookCategory.find("book.id = :bookId and author.id = :authorId", params)
+				.firstResult()
+					.onItem()
+						.transform(entitie -> (BookCategory) entitie)
+					.ifNoItem()
+						.after(Duration.ofMillis(10000))
+							.fail()
+					.onFailure()
+						.recoverWithUni(failure -> {
+							return Uni.createFrom().item(new BookCategory());
+						});
+	}
+
+	public static Uni<Boolean> deleteBookAuthorByBookIdAndAuthorId(Long bookId, Long authorId) {
+		Uni<Boolean> deleted = BookAuthor.getBookAuthorByBookIdAndAuthorId(bookId, authorId)
+				.onItem()
+					.ifNotNull()
+						.transformToUni(entity -> deleteBookAuthorById(entity.getId()))
+				.onItem()
+					.ifNull()
+						.continueWith(true);
+		
+		return deleted;
 	}
 }

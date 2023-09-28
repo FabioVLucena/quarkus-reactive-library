@@ -88,9 +88,62 @@ public class BookResource {
     @Path("{id}/categories/{detailid}")
     @Produces(MediaType.APPLICATION_JSON)
     public Uni<Response> deleteCategory(@PathParam("id") Long id, @PathParam("detailid") Long detailid) {
-    	return bookService.deleteCategory(id, detailid)
+    	return bookService.removeCategory(id, detailid)
     			.onItem().transform(entity -> !entity ? Response.serverError().status(Status.NOT_FOUND).build()
                         : Response.ok().status(Status.OK).build());
     }
     
+    @GET
+    @Path("{id}/authors")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Uni<Response> getAuthorsByBookId(@PathParam("id") Long id) {
+    	return bookService.getAllAuthorsByBookId(id)
+				.onItem().transform(books -> Response.ok(books))
+                .onItem().transform(Response.ResponseBuilder::build);
+    }
+
+    @POST
+    @Path("{id}/authors/{detailid}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Uni<Response> addAuthor(@PathParam("id") Long id, @PathParam("detailid") Long detailid) {
+    	return bookService.addAuthor(id, detailid)
+    			.onItem().transform(bookCategory -> Response.ok(bookCategory).status(Status.CREATED))
+    			.onItem().transform(Response.ResponseBuilder::build);
+    }
+
+    @DELETE
+    @Path("{id}/authors/{detailid}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Uni<Response> removeAuthor(@PathParam("id") Long id, @PathParam("detailid") Long detailid) {
+    	return bookService.removeAuthor(id, detailid)
+    			.onItem().transform(entity -> !entity ? Response.serverError().status(Status.NOT_FOUND).build()
+                        : Response.ok().status(Status.OK).build());
+    }
+    
+    @GET
+    @Path("{id}/publishers")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Uni<Response> getPublishersByBookId(@PathParam("id") Long id) {
+    	return bookService.getAllPublishersByBookId(id)
+				.onItem().transform(books -> Response.ok(books))
+                .onItem().transform(Response.ResponseBuilder::build);
+    }
+
+    @POST
+    @Path("{id}/publishers/{detailid}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Uni<Response> addPublisher(@PathParam("id") Long id, @PathParam("detailid") Long detailid) {
+    	return bookService.addPublisher(id, detailid)
+    			.onItem().transform(bookCategory -> Response.ok(bookCategory).status(Status.CREATED))
+    			.onItem().transform(Response.ResponseBuilder::build);
+    }
+
+    @DELETE
+    @Path("{id}/publishers/{detailid}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Uni<Response> removePublisher(@PathParam("id") Long id, @PathParam("detailid") Long detailid) {
+    	return bookService.removePublisher(id, detailid)
+    			.onItem().transform(entity -> !entity ? Response.serverError().status(Status.NOT_FOUND).build()
+                        : Response.ok().status(Status.OK).build());
+    }
 }

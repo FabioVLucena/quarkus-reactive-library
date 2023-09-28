@@ -34,6 +34,10 @@ public class Author extends PanacheEntityBase {
 	@Column(name = "name", nullable = false, unique = false)
 	private String name;
 	
+	public Author(Long id) {
+		this.id = id;
+	}
+	
 	public static Uni<Author> findAuthorById(Long id) {
 		return findById(id);
 	}
@@ -81,4 +85,5 @@ public class Author extends PanacheEntityBase {
 	public static Uni<Boolean> deleteAuthorById(Long id) {
 		return Panache.withTransaction(() -> deleteById(id));
 	}
+
 }

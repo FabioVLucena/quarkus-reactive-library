@@ -4,9 +4,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import entity.Author;
 import entity.Book;
+import entity.BookAuthor;
 import entity.BookCategory;
+import entity.BookPublisher;
 import entity.Category;
+import entity.Publisher;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.WebApplicationException;
@@ -67,9 +71,9 @@ public class BookService {
 		return categoryUniList;
 	}
 	
-	public Uni<BookCategory> addCategory(Long bookId, Long categoryId) {
+	public Uni<BookCategory> addCategory(Long id, Long categoryId) {
 		BookCategory bookCategory = new BookCategory();
-		bookCategory.setBook(new Book(bookId));
+		bookCategory.setBook(new Book(id));
 		bookCategory.setCategory(new Category(categoryId));
 		bookCategory.setRegisterDate(new Date());
 		
@@ -77,8 +81,63 @@ public class BookService {
 		return bookCategoryUni;
 	}
 	
-	public Uni<Boolean> deleteCategory(Long bookId, Long categoryId) {
-		Uni<Boolean> deleted = BookCategory.deleteBookCategoryByBookIdAndCategoryId(bookId, categoryId);
+	public Uni<Boolean> removeCategory(Long id, Long categoryId) {
+		Uni<Boolean> deleted = BookCategory.deleteBookCategoryByBookIdAndCategoryId(id, categoryId);
 		return deleted;
 	}
+	
+	public Uni<List<Author>> getAllAuthorsByBookId(Long id) {
+		Uni<List<BookAuthor>> uniBookAuthorList = BookAuthor.getAllBookAuthorByBookId(id);
+		
+		Uni<List<Author>> uniAuthorList = uniBookAuthorList.onItem().transform(list -> {
+			return list.stream()
+					.map(BookAuthor::getAuthor)
+					.collect(Collectors.toList());
+		});
+		
+		return uniAuthorList;
+	}
+	
+	public Uni<BookAuthor> addAuthor(Long id, Long authorId) {
+		BookAuthor bookAuthor = new BookAuthor();
+		bookAuthor.setBook(new Book(id));
+		bookAuthor.setAuthor(new Author(authorId));
+		bookAuthor.setRegisterDate(new Date());
+		
+		Uni<BookAuthor> uniBookAuthor = BookAuthor.addBookAuthor(bookAuthor);
+		return uniBookAuthor;
+	}
+	
+	public Uni<Boolean> removeAuthor(Long id, Long authorId) {
+		Uni<Boolean> deleted = BookAuthor.deleteBookAuthorByBookIdAndAuthorId(id, authorId);
+		return deleted;
+	}
+	
+	public Uni<List<Publisher>> getAllPublishersByBookId(Long id) {
+		Uni<List<BookPublisher>> uniBookPublisherList = BookPublisher.getAllBookPublisherByBookId(id);
+		
+		Uni<List<Publisher>> uniPublisherList = uniBookPublisherList.onItem().transform(list -> {
+			return list.stream()
+					.map(BookPublisher::getPublisher)
+					.collect(Collectors.toList());
+		});
+		
+		return uniPublisherList;
+	}
+	
+	public Uni<BookPublisher> addPublisher(Long id, Long publisherId) {
+		BookPublisher bookAuthor = new BookPublisher();
+		bookAuthor.setBook(new Book(id));
+		bookAuthor.setPublisher(new Publisher(publisherId));
+		bookAuthor.setRegisterDate(new Date());
+		
+		Uni<BookPublisher> uniBookPublisher = BookPublisher.addBookPublisher(bookAuthor);
+		return uniBookPublisher;
+	}
+	
+	public Uni<Boolean> removePublisher(Long id, Long publisherId) {
+		Uni<Boolean> deleted = BookPublisher.deleteBookPublisherByBookIdAndPublisherId(id, publisherId);
+		return deleted;
+	}
+	
 }
