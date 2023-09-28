@@ -3,7 +3,9 @@ package entity;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import io.quarkus.hibernate.reactive.panache.Panache;
@@ -17,12 +19,14 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-@Builder
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper=false)
 @Entity(name = "book_author")
 public class BookAuthor extends PanacheEntityBase {
 
@@ -58,7 +62,7 @@ public class BookAuthor extends PanacheEntityBase {
 	
 	public static Uni<List<BookAuthor>> getAllBookAuthorByBookId(Long bookId) {
 		return BookAuthor
-				.list("book_id", bookId)
+				.list("book.id", bookId)
 					.onItem().transform(entities -> entities.stream()
                         .map(entity -> (BookAuthor) entity)
                         	.collect(Collectors.toList()))
@@ -74,7 +78,7 @@ public class BookAuthor extends PanacheEntityBase {
 
 	public static Uni<List<BookAuthor>> getAllBookAuthorByAuthorId(Long authorId) {
 		return BookAuthor
-				.list("author_id", authorId)
+				.list("author.id", authorId)
 				.onItem().transform(entities -> entities.stream()
                         .map(entity -> (BookAuthor) entity)
                         	.collect(Collectors.toList()))
@@ -90,5 +94,35 @@ public class BookAuthor extends PanacheEntityBase {
 	
 	public static Uni<Boolean> deleteBookAuthorById(Long id) {
 		return Panache.withTransaction(() -> deleteById(id));
+	}
+	
+	public static Uni<BookCategory> getBookAuthorByBookIdAndAuthorId(Long bookId, Long authorId) {
+		Map<String, Object> params = new HashMap<>();
+		params.put("bookId", bookId);
+		params.put("authorId", authorId);
+		
+		return BookCategory.find("book.id = :bookId and author.id = :authorId", params)
+				.firstResult()
+					.onItem()
+						.transform(entitie -> (BookCategory) entitie)
+					.ifNoItem()
+						.after(Duration.ofMillis(10000))
+							.fail()
+					.onFailure()
+						.recoverWithUni(failure -> {
+							return Uni.createFrom().item(new BookCategory());
+						});
+	}
+
+	public static Uni<Boolean> deleteBookAuthorByBookIdAndAuthorId(Long bookId, Long authorId) {
+		Uni<Boolean> deleted = BookAuthor.getBookAuthorByBookIdAndAuthorId(bookId, authorId)
+				.onItem()
+					.ifNotNull()
+						.transformToUni(entity -> deleteBookAuthorById(entity.getId()))
+				.onItem()
+					.ifNull()
+						.continueWith(true);
+		
+		return deleted;
 	}
 }

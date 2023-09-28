@@ -3,7 +3,9 @@ package entity;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import io.quarkus.hibernate.reactive.panache.Panache;
@@ -17,12 +19,14 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-@Builder
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper=false)
 @Entity(name = "book_category")
 public class BookCategory extends PanacheEntityBase {
 
@@ -56,9 +60,27 @@ public class BookCategory extends PanacheEntityBase {
 					.transform(t -> new IllegalStateException(t));
 	}
 	
+	public static Uni<BookCategory> getBookCategoryByBookIdAndCategoryId(Long bookId, Long categoryId) {
+		Map<String, Object> params = new HashMap<>();
+		params.put("bookId", bookId);
+		params.put("categoryId", categoryId);
+		
+		return BookCategory.find("book.id = :bookId and category.id = :categoryId", params)
+				.firstResult()
+					.onItem()
+						.transform(entitie -> (BookCategory) entitie)
+					.ifNoItem()
+						.after(Duration.ofMillis(10000))
+							.fail()
+					.onFailure()
+						.recoverWithUni(failure -> {
+							return Uni.createFrom().item(new BookCategory());
+						});
+	}
+	
 	public static Uni<List<BookCategory>> getAllBookCategoryByBookId(Long bookId) {
 		return BookCategory
-				.list("book_id", bookId)
+				.list("book.id", bookId)
 					.onItem().transform(entities -> entities.stream()
                         .map(entity -> (BookCategory) entity)
                         	.collect(Collectors.toList()))
@@ -72,9 +94,9 @@ public class BookCategory extends PanacheEntityBase {
 					});
 	}
 
-	public static Uni<List<BookCategory>> getAllBookCategoryByAuthorId(Long categoryId) {
+	public static Uni<List<BookCategory>> getAllBookCategoryByCategoryId(Long categoryId) {
 		return BookCategory
-				.list("category_id", categoryId)
+				.list("category.id", categoryId)
 				.onItem().transform(entities -> entities.stream()
                         .map(entity -> (BookCategory) entity)
                         	.collect(Collectors.toList()))
@@ -89,6 +111,22 @@ public class BookCategory extends PanacheEntityBase {
 	}
 	
 	public static Uni<Boolean> deleteBookCategoryById(Long id) {
-		return Panache.withTransaction(() -> deleteById(id));
+		return Panache.withTransaction(() -> BookCategory.deleteById(id));
+	}
+
+	public static Uni<Long> deleteAllBookCategoryByBookId(Long bookId) {
+		return Panache.withTransaction(() -> BookCategory.delete("book.id", bookId));
+	}
+	
+	public static Uni<Boolean> deleteBookCategoryByBookIdAndCategoryId(Long bookId, Long categoryId) {
+		Uni<Boolean> deleted = BookCategory.getBookCategoryByBookIdAndCategoryId(bookId, categoryId)
+				.onItem()
+					.ifNotNull()
+						.transformToUni(entity -> deleteBookCategoryById(entity.getId()))
+				.onItem()
+					.ifNull()
+						.continueWith(true);
+		
+		return deleted;
 	}
 }

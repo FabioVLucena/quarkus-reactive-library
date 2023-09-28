@@ -15,12 +15,14 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-@Builder
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper=false)
 @Entity(name = "publisher")
 public class Publisher extends PanacheEntityBase {
 
@@ -31,6 +33,10 @@ public class Publisher extends PanacheEntityBase {
 	
 	@Column(name = "name", nullable = false, unique = false)
 	private String name;
+	
+	public Publisher(Long id) {
+		this.id = id;
+	}
 	
 	public static Uni<Publisher> findPublisherById(Long id) {
 		return findById(id);
@@ -79,4 +85,5 @@ public class Publisher extends PanacheEntityBase {
 	public static Uni<Boolean> deletePublisherById(Long id) {
 		return Panache.withTransaction(() -> deleteById(id));
 	}
+
 }
