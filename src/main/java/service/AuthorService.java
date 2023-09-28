@@ -1,8 +1,11 @@
 package service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import entity.Author;
+import entity.Book;
+import entity.BookAuthor;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 
@@ -35,6 +38,18 @@ public class AuthorService {
 		Uni<Boolean> deleted = Author.deleteAuthorById(id);
 		
 		return deleted;
+	}
+	
+	public Uni<List<Book>> getAllBooks(Long id) {
+		Uni<List<BookAuthor>> uniBookAthorList = BookAuthor.getAllBookAuthorByAuthorId(id);
+		
+		Uni<List<Book>> uniBookList = uniBookAthorList.onItem().transform(list -> {
+			return list.stream()
+					.map(BookAuthor::getBook)
+					.collect(Collectors.toList());
+		});
+		
+		return uniBookList;
 	}
 	
 }

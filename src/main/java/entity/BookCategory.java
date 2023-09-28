@@ -111,11 +111,11 @@ public class BookCategory extends PanacheEntityBase {
 	}
 	
 	public static Uni<Boolean> deleteBookCategoryById(Long id) {
-		return Panache.withTransaction(() -> deleteById(id));
+		return Panache.withTransaction(() -> BookCategory.deleteById(id));
 	}
 
-	public static Uni<Boolean> deleteAllBookCategoryByBookId(Long bookId) {
-		return Uni.createFrom().item(true);
+	public static Uni<Long> deleteAllBookCategoryByBookId(Long bookId) {
+		return Panache.withTransaction(() -> BookCategory.delete("book.id", bookId));
 	}
 	
 	public static Uni<Boolean> deleteBookCategoryByBookIdAndCategoryId(Long bookId, Long categoryId) {

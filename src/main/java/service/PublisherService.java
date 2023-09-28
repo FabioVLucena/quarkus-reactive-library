@@ -1,7 +1,10 @@
 package service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
+import entity.Book;
+import entity.BookPublisher;
 import entity.Publisher;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -35,6 +38,18 @@ public class PublisherService {
 		Uni<Boolean> deleted = Publisher.deletePublisherById(id);
 		
 		return deleted;
+	}
+	
+	public Uni<List<Book>> getAllBooks(Long id) {
+		Uni<List<BookPublisher>> uniBookPublisherList = BookPublisher.getAllBookPublisherByBookId(id);
+		
+		Uni<List<Book>> uniBookList = uniBookPublisherList.onItem().transform(list -> {
+			return list.stream()
+					.map(BookPublisher::getBook)
+					.collect(Collectors.toList());
+		});
+		
+		return uniBookList;
 	}
 	
 }

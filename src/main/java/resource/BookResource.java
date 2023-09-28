@@ -92,4 +92,5 @@ public class BookResource {
     			.onItem().transform(entity -> !entity ? Response.serverError().status(Status.NOT_FOUND).build()
                         : Response.ok().status(Status.OK).build());
     }
+    
 }

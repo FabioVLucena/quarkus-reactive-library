@@ -65,4 +65,13 @@ public class PublisherResource {
                 .onItem().transform(entity -> !entity ? Response.serverError().status(Status.NOT_FOUND).build()
                         : Response.ok().status(Status.OK).build());
     }
+    
+    @GET
+    @Path("{id}/books")
+    public Uni<Response> getBooks(@PathParam("id") Long id) {
+    	return publisherService.getAllBooks(id)
+				.onItem().transform(books -> Response.ok(books))
+                .onItem().transform(Response.ResponseBuilder::build);
+    }
+    
 }
