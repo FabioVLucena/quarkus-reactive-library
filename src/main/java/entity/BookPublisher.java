@@ -125,4 +125,9 @@ public class BookPublisher extends PanacheEntityBase {
 		
 		return deleted;
 	}
+
+	public static void deleteAllBookPublisherByBookId(Long id) {
+
+		
+	}
 }

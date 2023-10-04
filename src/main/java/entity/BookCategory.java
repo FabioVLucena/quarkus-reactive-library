@@ -114,8 +114,19 @@ public class BookCategory extends PanacheEntityBase {
 		return Panache.withTransaction(() -> BookCategory.deleteById(id));
 	}
 
-	public static Uni<Long> deleteAllBookCategoryByBookId(Long bookId) {
-		return Panache.withTransaction(() -> BookCategory.delete("book.id", bookId));
+	public static Uni<Boolean> deleteAllBookCategoryByBookId(Long bookId) {
+		return BookCategory.getAllBookCategoryByBookId(bookId)
+			.onItem()
+				.ifNotNull()
+					.transformToUni(list -> {
+						list.stream().forEach(entity -> deleteBookCategoryById(entity.getId()));
+						return Uni.createFrom().item(true);
+					})
+			.onItem()
+				.ifNull()
+					.continueWith(true);
+		
+//		return Panache.withTransaction(() -> BookCategory.delete("book.id = :bookId", params));
 	}
 	
 	public static Uni<Boolean> deleteBookCategoryByBookIdAndCategoryId(Long bookId, Long categoryId) {

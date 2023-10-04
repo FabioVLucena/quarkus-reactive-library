@@ -125,4 +125,9 @@ public class BookAuthor extends PanacheEntityBase {
 		
 		return deleted;
 	}
+
+	public static void deleteAllBookAuthorByBookId(Long id) {
+		// TODO Auto-generated method stub
+		
+	}
 }

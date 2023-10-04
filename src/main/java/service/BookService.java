@@ -46,11 +46,13 @@ public class BookService {
 	}
 
 	public Uni<Boolean> deleteBook(Long id) {
+//		BookAuthor.deleteAllBookAuthorByBookId(id);
 		BookCategory.deleteAllBookCategoryByBookId(id);
+//		BookPublisher.deleteAllBookPublisherByBookId(id);
 		
-		Uni<Boolean> deleted = Book.deleteBookById(id);
+//		Uni<Boolean> deleted = Book.deleteBookById(id);
 		
-		return deleted;
+		return Uni.createFrom().item(true);
 	}
 	
 	private void validateTitle(Book book) {
