@@ -45,9 +45,6 @@ public class BookPublisher extends PanacheEntityBase {
 	
 	@Column(name = "register_date", nullable = false, unique = false)
 	private Date registerDate;
-
-	@Column(name = "delete_date", nullable = true, unique = false)
-	private Date deleteDate;
 	
 	public static Uni<BookPublisher> addBookPublisher(BookPublisher bookPublisher) {
 		return Panache

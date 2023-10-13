@@ -46,9 +46,6 @@ public class BookAuthor extends PanacheEntityBase {
 	@Column(name = "register_date", nullable = false, unique = false)
 	private Date registerDate;
 
-	@Column(name = "delete_date", nullable = true, unique = false)
-	private Date deleteDate;
-	
 	public static Uni<BookAuthor> addBookAuthor(BookAuthor bookAuthor) {
 		return Panache
 				.withTransaction(bookAuthor::persist)
