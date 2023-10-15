@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import io.quarkus.hibernate.reactive.panache.Panache;
 import io.quarkus.hibernate.reactive.panache.PanacheEntityBase;
 import io.smallrye.mutiny.Uni;
@@ -36,10 +39,12 @@ public class BookCategory extends PanacheEntityBase {
 	private Long id;
 	
 	@ManyToOne
+	@OnDelete(action = OnDeleteAction.CASCADE)
 	@JoinColumn(name = "book_id", referencedColumnName = "id", nullable = false)
 	private Book book;
 
 	@ManyToOne
+	@OnDelete(action = OnDeleteAction.CASCADE)
 	@JoinColumn(name = "category_id", referencedColumnName = "id", nullable = false)
 	private Category category;
 	
@@ -108,13 +113,9 @@ public class BookCategory extends PanacheEntityBase {
 	}
 	
 	public static Uni<Boolean> deleteBookCategoryById(Long id) {
-		return Panache.withTransaction(() -> BookCategory.deleteById(id));
+		return Panache.withTransaction(() -> deleteById(id));
 	}
 
-	public static Uni<Long> deleteAllBookCategoryByBookId(Long bookId) {
-		return Panache.withTransaction(() -> BookCategory.delete("book.id", bookId));
-	}
-	
 	public static Uni<Boolean> deleteBookCategoryByBookIdAndCategoryId(Long bookId, Long categoryId) {
 		Uni<Boolean> deleted = BookCategory.getBookCategoryByBookIdAndCategoryId(bookId, categoryId)
 				.onItem()

@@ -14,6 +14,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -46,6 +49,14 @@ public class Book extends PanacheEntityBase {
 	@Column(name = "available_quantity", nullable = true, unique = false)
 	private Integer availableQuantity;
 
+    @OneToMany
+    @JoinTable(
+        name = "LivroCategoria",
+        joinColumns = @JoinColumn(name = "book_id"),
+        inverseJoinColumns = @JoinColumn(name = "category_id")
+    )
+    public List<BookCategory> categories;
+	
 	public Book(Long id) {
 		this.id = id;
 	}

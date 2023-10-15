@@ -46,13 +46,9 @@ public class BookService {
 	}
 
 	public Uni<Boolean> deleteBook(Long id) {
-		BookCategory.deleteAllBookCategoryByBookId(id);
-		
-		Uni<Boolean> deleted = Book.deleteBookById(id);
-		
-		return deleted;
+		return Book.deleteBookById(id);
 	}
-	
+
 	private void validateTitle(Book book) {
 	    if (book == null || book.getTitle() == null) {
             throw new WebApplicationException("Book title was not set on request.", Status.BAD_REQUEST);
